@@ -1,0 +1,71 @@
+﻿@using MyProject.Admissions.Dto
+@model AdmissionPeriodDto
+
+<div class="modal-header">
+    <h5 class="modal-title">
+        @L("Edit")
+    </h5>
+
+    <button type="button"
+            class="close"
+            data-bs-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
+<div class="modal-body">
+
+    <form name="AdmissionPeriodEditForm">
+
+        <input type="hidden"
+               name="id"
+               value="@Model.Id" />
+
+        <div class="form-group">
+            <label>Start Date</label>
+
+            <input type="datetime-local"
+                   name="startDate"
+                   class="form-control"
+                   value="@Model.StartDate.ToString("yyyy-MM-ddTHH:mm")" />
+        </div>
+
+        <div class="form-group">
+            <label>End Date</label>
+
+            <input type="datetime-local"
+                   name="endDate"
+                   class="form-control"
+                   value="@Model.EndDate.ToString("yyyy-MM-ddTHH:mm")" />
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox"
+                       name="isActive"
+                       value="true"
+                @(Model.IsActive ? "checked" : "") />
+
+                Is Active
+            </label>
+        </div>
+
+    </form>
+
+</div>
+
+<div class="modal-footer">
+
+    <button type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal">
+        @L("Cancel")
+    </button>
+
+    <button type="button"
+            class="btn btn-primary"
+            id="saveAdmissionPeriodButton">
+        @L("Save")
+    </button>
+
+</div>

@@ -1,0 +1,96 @@
+﻿@using MyProject.Web.Models.AdmissionPeriods
+@model AdmissionPeriodListViewModel
+
+<div class="modal fade"
+     id="AdmissionPeriodCreateModal"
+     tabindex="-1"
+     role="dialog">
+
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <form name="AdmissionPeriodCreateForm" role="form">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        @L("Create")
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="form-group mb-3">
+                        <label>Tên đợt tuyển sinh</label>
+                        <input type="text"
+                               name="name"
+                               class="form-control"
+                               required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Năm học</label>
+                        <input type="text"
+                               name="schoolYear"
+                               class="form-control"
+                               placeholder="Ví dụ: 2026-2027"
+                               required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Ngày bắt đầu</label>
+                        <input type="datetime-local"
+                               name="startDate"
+                               class="form-control"
+                               required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Ngày kết thúc</label>
+                        <input type="datetime-local"
+                               name="endDate"
+                               class="form-control"
+                               required />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input type="checkbox"
+                                   name="isActive"
+                                   class="form-check-input"
+                                   value="true"
+                                   id="IsActive" />
+
+                            <label class="form-check-label" for="IsActive">
+                                Is Active
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        @L("Cancel")
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-primary save-button">
+                        @L("Save")
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
