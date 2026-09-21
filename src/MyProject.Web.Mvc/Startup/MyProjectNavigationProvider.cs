@@ -144,6 +144,14 @@ public class MyProjectNavigationProvider : NavigationProvider
                         )
                     )
                 )
+            .AddItem(
+    new MenuItemDefinition(
+        "AdmissionQuota",
+        new FixedLocalizableString("Quản lý chỉ tiêu tuyển sinh"),
+        url: "AdmissionQuota",
+        icon: "fas fa-graduation-cap"
+    )
+)
             );
     }
 

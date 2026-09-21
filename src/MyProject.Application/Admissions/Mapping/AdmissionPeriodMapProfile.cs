@@ -9,6 +9,9 @@ namespace MyProject.Admissions
         {
             CreateMap<AdmissionPeriod, AdmissionPeriodDto>();
             CreateMap<AdmissionPeriodDto, AdmissionPeriod>();
+
+            CreateMap<AdmissionQuota, AdmissionQuotaDto>();
+            CreateMap<AdmissionQuotaDto, AdmissionQuota>();
         }
     }
 }

@@ -28,6 +28,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MyProject.EntityFrameworkCore\MyProject.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\MyProject.Web.Core\MyProject.Web.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

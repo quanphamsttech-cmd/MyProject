@@ -1,0 +1,103 @@
+﻿@using MyProject.Admissions.Dto
+
+@model AdmissionQuotaDto
+
+@{
+    ViewBag.Title = "Thêm chỉ tiêu tuyển sinh";
+}
+
+<div class="container-fluid">
+
+    <div class="card">
+
+        <div class="card-header">
+            <h4>Thêm chỉ tiêu tuyển sinh</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="AdmissionQuota"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-3">
+                    <label>Kỳ tuyển sinh</label>
+
+                    <input asp-for="AdmissionPeriodId"
+                           class="form-control"
+                           type="number" />
+
+                    <span asp-validation-for="AdmissionPeriodId"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Tên ngành</label>
+
+                    <input asp-for="MajorName"
+                           class="form-control"
+                           placeholder="Nhập tên ngành" />
+
+                    <span asp-validation-for="MajorName"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Chỉ tiêu</label>
+
+                    <input asp-for="Quota"
+                           class="form-control"
+                           type="number"
+                           min="0" />
+
+                    <span asp-validation-for="Quota"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Đã tuyển</label>
+
+                    <input asp-for="Enrolled"
+                           class="form-control"
+                           type="number"
+                           min="0" />
+
+                    <span asp-validation-for="Enrolled"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>
+                        <input asp-for="IsActive" />
+                        Đang hoạt động
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fa fa-save"></i>
+                    Lưu
+
+                </button>
+
+                <a href="@Url.Action("Index", "AdmissionQuota")"
+                   class="btn btn-secondary">
+
+                    Quay lại
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

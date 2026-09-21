@@ -1,0 +1,111 @@
+﻿@using MyProject.Admissions
+@using MyProject.Admissions.Dto
+@using Abp.Application.Services.Dto
+
+@model PagedResultDto<AdmissionQuotaDto>
+
+@{
+    ViewBag.Title = "Chỉ tiêu tuyển sinh";
+}
+
+<div class="container-fluid">
+
+    <div class="card">
+
+        <div class="card-header">
+            <h4>Quản lý chỉ tiêu tuyển sinh</h4>
+        </div>
+
+        <div class="card-body">
+
+            <a href="@Url.Action("Create", "AdmissionQuota")" class="btn btn-primary mb-3">
+                <i class="fa fa-plus"></i>
+                Thêm chỉ tiêu
+            </a>
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Kỳ tuyển sinh</th>
+                        <th>Ngành</th>
+                        <th>Chỉ tiêu</th>
+                        <th>Đã tuyển</th>
+                        <th>Còn lại</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model.Items != null && Model.Items.Any())
+                    {
+                        var stt = 1;
+
+                        foreach (var item in Model.Items)
+                        {
+                            <tr>
+
+                                <td>
+                                    @stt
+                                </td>
+
+                                <td>
+                                    @item.AdmissionPeriodId
+                                </td>
+
+                                <td>
+                                    @item.MajorName
+                                </td>
+
+                                <td>
+                                    @item.Quota
+                                </td>
+
+                                <td>
+                                    @item.Enrolled
+                                </td>
+
+                                <td>
+                                    @item.Remaining
+                                </td>
+
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge badge-success">
+                                            Đang hoạt động
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">
+                                            Không hoạt động
+                                        </span>
+                                    }
+                                </td>
+
+                            </tr>
+
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                Chưa có dữ liệu chỉ tiêu tuyển sinh
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
