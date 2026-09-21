@@ -1,6 +1,7 @@
 ﻿@using MyProject.Admissions
 @using MyProject.Admissions.Dto
 @using Abp.Application.Services.Dto
+@using MyProject.Authorization
 
 @model PagedResultDto<AdmissionQuotaDto>
 
@@ -18,10 +19,21 @@
 
         <div class="card-body">
 
-            <a href="@Url.Action("Create", "AdmissionQuota")" class="btn btn-primary mb-3">
-                <i class="fa fa-plus"></i>
-                Thêm chỉ tiêu
-            </a>
+            @* ==============================
+               NÚT THÊM CHỈ TIÊU
+               ============================== *@
+
+            @if (IsGranted(PermissionNames.Pages_AdmissionQuota_Create))
+            {
+                <a href="@Url.Action("Create", "AdmissionQuota")"
+                   class="btn btn-primary mb-3">
+
+                    <i class="fa fa-plus"></i>
+                    Thêm chỉ tiêu
+
+                </a>
+            }
+
 
             <table class="table table-bordered table-striped">
 
@@ -33,9 +45,14 @@
                         <th>Chỉ tiêu</th>
                         <th>Đã tuyển</th>
                         <th>Còn lại</th>
-                        <th>Trạng thái</th>
+                        <th>Trạng thái duyệt</th>
+                        <th>Người duyệt</th>
+                        <th>Thời gian duyệt</th>
+                        <th>Trạng thái hoạt động</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
+
 
                 <tbody>
 
@@ -47,31 +64,138 @@
                         {
                             <tr>
 
+                                @* STT *@
                                 <td>
                                     @stt
                                 </td>
 
+
+                                @* KỲ TUYỂN SINH *@
                                 <td>
                                     @item.AdmissionPeriodId
                                 </td>
 
+
+                                @* NGÀNH *@
                                 <td>
                                     @item.MajorName
                                 </td>
 
+
+                                @* CHỈ TIÊU *@
                                 <td>
                                     @item.Quota
                                 </td>
 
+
+                                @* ĐÃ TUYỂN *@
                                 <td>
                                     @item.Enrolled
                                 </td>
 
+
+                                @* CÒN LẠI *@
                                 <td>
                                     @item.Remaining
                                 </td>
 
+
+                                @* ==============================
+                                   TRẠNG THÁI DUYỆT
+                                   ============================== *@
+
                                 <td>
+
+                                    @if (item.Status == 0)
+                                    {
+                                        <span class="badge badge-secondary">
+                                            Nháp
+                                        </span>
+                                    }
+                                    else if (item.Status == 1)
+                                    {
+                                        <span class="badge badge-warning">
+                                            Chờ duyệt
+                                        </span>
+                                    }
+                                    else if (item.Status == 2)
+                                    {
+                                        <span class="badge badge-success">
+                                            Đã duyệt
+                                        </span>
+                                    }
+                                    else if (item.Status == 3)
+                                    {
+                                        <span class="badge badge-danger">
+                                            Từ chối
+                                        </span>
+
+                                        @if (!string.IsNullOrEmpty(item.RejectReason))
+                                        {
+                                            <br />
+
+                                            <small class="text-danger">
+                                                Lý do: @item.RejectReason
+                                            </small>
+                                        }
+                                    }
+
+                                </td>
+
+
+                                @* ==============================
+                                   NGƯỜI DUYỆT
+                                   ============================== *@
+
+                                <td>
+
+                                    @if (item.Status == 2 &&
+                                         !string.IsNullOrEmpty(item.ApprovedByName))
+                                    {
+                                        <span>
+                                            @item.ApprovedByName
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            -
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                @* ==============================
+                                   THỜI GIAN DUYỆT
+                                   ============================== *@
+
+                                <td>
+
+                                    @if (item.Status == 2 &&
+                                         item.ApprovedTime.HasValue)
+                                    {
+                                        <span>
+                                            @item.ApprovedTime.Value.ToString(
+                                                "dd/MM/yyyy HH:mm")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            -
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                @* ==============================
+                                   TRẠNG THÁI HOẠT ĐỘNG
+                                   ============================== *@
+
+                                <td>
+
                                     @if (item.IsActive)
                                     {
                                         <span class="badge badge-success">
@@ -84,6 +208,154 @@
                                             Không hoạt động
                                         </span>
                                     }
+
+                                </td>
+
+
+                                @* ==============================
+                                   THAO TÁC
+                                   ============================== *@
+
+                                <td>
+
+                                    @* --------------------------------
+                                       NHÁP -> GỬI DUYỆT
+                                       -------------------------------- *@
+
+                                    @if (item.Status == 0 &&
+                                         IsGranted(
+                                             PermissionNames.Pages_AdmissionQuota_Submit))
+                                    {
+                                        <form asp-controller="AdmissionQuota"
+                                              asp-action="Submit"
+                                              method="post"
+                                              style="display:inline;">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-primary">
+
+                                                Gửi duyệt
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+
+                                    @* --------------------------------
+                                       TỪ CHỐI -> GỬI DUYỆT LẠI
+                                       -------------------------------- *@
+
+                                    @if (item.Status == 3 &&
+                                         IsGranted(
+                                             PermissionNames.Pages_AdmissionQuota_Submit))
+                                    {
+                                        <form asp-controller="AdmissionQuota"
+                                              asp-action="Submit"
+                                              method="post"
+                                              style="display:inline;">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-primary">
+
+                                                Gửi duyệt lại
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+
+                                    @* --------------------------------
+                                       CHỜ DUYỆT -> DUYỆT
+                                       -------------------------------- *@
+
+                                    @if (item.Status == 1 &&
+                                         IsGranted(
+                                             PermissionNames.Pages_AdmissionQuota_Approve))
+                                    {
+                                        <form asp-controller="AdmissionQuota"
+                                              asp-action="Approve"
+                                              method="post"
+                                              style="display:inline;">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success">
+
+                                                Duyệt
+
+                                            </button>
+
+                                        </form>
+                                    }
+
+
+                                    @* --------------------------------
+                                       CHỜ DUYỆT -> TỪ CHỐI
+                                       -------------------------------- *@
+
+                                    @if (item.Status == 1 &&
+                                         IsGranted(
+                                             PermissionNames.Pages_AdmissionQuota_Reject))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="rejectQuota(@item.Id)">
+
+                                            Từ chối
+
+                                        </button>
+
+
+                                        <form id="rejectForm-@item.Id"
+                                              asp-controller="AdmissionQuota"
+                                              asp-action="Reject"
+                                              method="post"
+                                              style="display:none;">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+                                            <input type="hidden"
+                                                   name="reason"
+                                                   id="rejectReason-@item.Id" />
+
+                                        </form>
+                                    }
+
+
+                                    @* --------------------------------
+                                       ĐÃ DUYỆT
+                                       -------------------------------- *@
+
+                                    @if (item.Status == 2)
+                                    {
+                                        <span class="text-success">
+                                            ✓ Đã duyệt
+                                        </span>
+                                    }
+
                                 </td>
 
                             </tr>
@@ -94,9 +366,14 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center">
+
+                            <td colspan="11"
+                                class="text-center">
+
                                 Chưa có dữ liệu chỉ tiêu tuyển sinh
+
                             </td>
+
                         </tr>
                     }
 
@@ -109,3 +386,32 @@
     </div>
 
 </div>
+
+
+<script>
+
+    function rejectQuota(id) {
+
+        var reason = prompt("Nhập lý do từ chối:");
+
+        if (reason === null) {
+            return;
+        }
+
+        if (reason.trim() === "") {
+
+            alert("Vui lòng nhập lý do từ chối.");
+
+            return;
+        }
+
+        document.getElementById(
+            "rejectReason-" + id
+        ).value = reason;
+
+        document.getElementById(
+            "rejectForm-" + id
+        ).submit();
+    }
+
+</script>

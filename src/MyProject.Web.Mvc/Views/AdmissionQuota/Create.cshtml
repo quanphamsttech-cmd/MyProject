@@ -22,19 +22,40 @@
 
                 @Html.AntiForgeryToken()
 
+                <!-- KỲ TUYỂN SINH -->
                 <div class="form-group mb-3">
+
                     <label>Kỳ tuyển sinh</label>
 
-                    <input asp-for="AdmissionPeriodId"
-                           class="form-control"
-                           type="number" />
+                    <select asp-for="AdmissionPeriodId"
+                            class="form-control">
+
+                        <option value="">
+                            -- Chọn kỳ tuyển sinh --
+                        </option>
+
+                        @if (ViewBag.AdmissionPeriods != null)
+                        {
+                            foreach (var period in ViewBag.AdmissionPeriods)
+                            {
+                                <option value="@period.Id">
+                                    @period.Name - @period.SchoolYear
+                                </option>
+                            }
+                        }
+
+                    </select>
 
                     <span asp-validation-for="AdmissionPeriodId"
                           class="text-danger">
                     </span>
+
                 </div>
 
+
+                <!-- NGÀNH -->
                 <div class="form-group mb-3">
+
                     <label>Tên ngành</label>
 
                     <input asp-for="MajorName"
@@ -44,41 +65,76 @@
                     <span asp-validation-for="MajorName"
                           class="text-danger">
                     </span>
+
                 </div>
 
+
+                <!-- CHỈ TIÊU -->
                 <div class="form-group mb-3">
+
                     <label>Chỉ tiêu</label>
 
                     <input asp-for="Quota"
                            class="form-control"
                            type="number"
-                           min="0" />
+                           min="0"
+                           placeholder="Nhập số chỉ tiêu" />
 
                     <span asp-validation-for="Quota"
                           class="text-danger">
                     </span>
+
                 </div>
 
+
+                <!-- ĐÃ TUYỂN -->
                 <div class="form-group mb-3">
+
                     <label>Đã tuyển</label>
 
                     <input asp-for="Enrolled"
                            class="form-control"
                            type="number"
-                           min="0" />
+                           min="0"
+                           value="0" />
 
                     <span asp-validation-for="Enrolled"
                           class="text-danger">
                     </span>
+
                 </div>
 
+
+                <!-- HOẠT ĐỘNG -->
                 <div class="form-group mb-3">
+
                     <label>
                         <input asp-for="IsActive" />
+
                         Đang hoạt động
                     </label>
+
                 </div>
 
+
+                <!-- TRẠNG THÁI -->
+                <div class="form-group mb-3">
+
+                    <label>Trạng thái</label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="Nháp"
+                           readonly />
+
+                    <small class="text-muted">
+                        Chỉ tiêu mới sẽ được tạo ở trạng thái Nháp.
+                    </small>
+
+                </div>
+
+
+                <!-- BUTTON -->
                 <button type="submit"
                         class="btn btn-primary">
 
@@ -86,6 +142,7 @@
                     Lưu
 
                 </button>
+
 
                 <a href="@Url.Action("Index", "AdmissionQuota")"
                    class="btn btn-secondary">
