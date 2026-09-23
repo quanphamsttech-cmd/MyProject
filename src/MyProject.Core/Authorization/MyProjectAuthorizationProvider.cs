@@ -67,6 +67,9 @@ public class MyProjectAuthorizationProvider : AuthorizationProvider
         context.CreatePermission(
             PermissionNames.Pages_AdmissionQuota_Reject,
             L("AdmissionQuotaReject"));
+        context.CreatePermission(
+            PermissionNames.Pages_AdmissionQuota_Delete,
+            L("AdmissionQuotaDelete"));
     }
 
     private static ILocalizableString L(string name)

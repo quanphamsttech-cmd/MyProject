@@ -1,0 +1,154 @@
+﻿@using MyProject.Admissions.Dto
+
+@model AdmissionQuotaDto
+
+@{
+    ViewBag.Title = "Sửa chỉ tiêu tuyển sinh";
+}
+
+<div class="container-fluid">
+
+    <div class="card">
+
+        <div class="card-header">
+            <h4>Sửa chỉ tiêu tuyển sinh</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="AdmissionQuota"
+                  asp-action="Edit"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       asp-for="Id" />
+
+
+                <!-- Kỳ tuyển sinh -->
+
+                <div class="form-group mb-3">
+
+                    <label>Kỳ tuyển sinh</label>
+
+                    <select asp-for="AdmissionPeriodId"
+                            class="form-control">
+
+                        <option value="">
+                            -- Chọn kỳ tuyển sinh --
+                        </option>
+
+                        @if (ViewBag.AdmissionPeriods != null)
+                        {
+                            foreach (var period in ViewBag.AdmissionPeriods)
+                            {
+                                <option value="@period.Id">
+                                    @period.Name - @period.SchoolYear
+                                </option>
+                            }
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- Ngành -->
+
+                <div class="form-group mb-3">
+
+                    <label>Tên ngành</label>
+
+                    <input asp-for="MajorName"
+                           class="form-control"
+                           placeholder="Nhập tên ngành" />
+
+                </div>
+
+
+                <!-- Chỉ tiêu -->
+
+                <div class="form-group mb-3">
+
+                    <label>Chỉ tiêu</label>
+
+                    <input asp-for="Quota"
+                           type="number"
+                           min="0"
+                           class="form-control" />
+
+                </div>
+
+
+                <!-- Đã tuyển -->
+
+                <div class="form-group mb-3">
+
+                    <label>Đã tuyển</label>
+
+                    <input asp-for="Enrolled"
+                           type="number"
+                           min="0"
+                           class="form-control" />
+
+                </div>
+
+
+                <!-- Hoạt động -->
+
+                <div class="form-group mb-3">
+
+                    <label>
+
+                        <input asp-for="IsActive" />
+
+                        Đang hoạt động
+
+                    </label>
+
+                </div>
+
+
+                <!-- Trạng thái -->
+
+                <div class="form-group mb-3">
+
+                    <label>Trạng thái</label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@(
+                               Model.Status == 0 ? "Nháp" :
+                               Model.Status == 1 ? "Chờ duyệt" :
+                               Model.Status == 2 ? "Đã duyệt" :
+                               "Từ chối"
+                           )"
+                           readonly />
+
+                </div>
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fa fa-save"></i>
+                    Lưu thay đổi
+
+                </button>
+
+
+                <a href="@Url.Action("Index", "AdmissionQuota")"
+                   class="btn btn-secondary">
+
+                    Quay lại
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

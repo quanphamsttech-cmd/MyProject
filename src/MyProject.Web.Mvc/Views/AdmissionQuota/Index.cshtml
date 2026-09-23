@@ -34,7 +34,110 @@
                 </a>
             }
 
+            <form asp-controller="AdmissionQuota"
+                  asp-action="Search"
+                  method="get"
+                  class="mb-3">
 
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <label>Kỳ tuyển sinh</label>
+
+                        <select name="AdmissionPeriodId"
+                                class="form-control">
+
+                            <option value="">
+                                -- Tất cả kỳ tuyển sinh --
+                            </option>
+
+                            @if (ViewBag.AdmissionPeriods != null)
+                            {
+                                foreach (var period in ViewBag.AdmissionPeriods)
+                                {
+                                    <option value="@period.Id">
+                                        @period.Name - @period.SchoolYear
+                                    </option>
+                                }
+                            }
+
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label>Ngành</label>
+
+                        <input type="text"
+                               name="MajorName"
+                               class="form-control"
+                               placeholder="Nhập tên ngành..." />
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label>Trạng thái</label>
+
+                        <select name="Status"
+                                class="form-control">
+
+                            <option value="">
+                                -- Tất cả trạng thái --
+                            </option>
+
+                            <option value="0">
+                                Nháp
+                            </option>
+
+                            <option value="1">
+                                Chờ duyệt
+                            </option>
+
+                            <option value="2">
+                                Đã duyệt
+                            </option>
+
+                            <option value="3">
+                                Từ chối
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label>&nbsp;</label>
+
+                        <div>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="fa fa-search"></i>
+                                Tìm kiếm
+
+                            </button>
+
+                            <a href="@Url.Action("Index", "AdmissionQuota")"
+                               class="btn btn-secondary">
+
+                                Xóa lọc
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+            
             <table class="table table-bordered table-striped">
 
                 <thead>
@@ -70,9 +173,31 @@
                                 </td>
 
 
-                                @* KỲ TUYỂN SINH *@
+                                <!-- KỲ TUYỂN SINH -->
                                 <td>
-                                    @item.AdmissionPeriodId
+                                    @if (ViewBag.AdmissionPeriods != null)
+                                    {
+                                        var period = ((IEnumerable<MyProject.Admissions.AdmissionPeriod>)
+                                            ViewBag.AdmissionPeriods)
+                                            .FirstOrDefault(x => x.Id == item.AdmissionPeriodId);
+
+                                        if (period != null)
+                                        {
+                                            @($"{period.Name} - {period.SchoolYear}")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Không xác định
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Không xác định
+                                        </span>
+                                    }
                                 </td>
 
 
@@ -211,15 +336,16 @@
 
                                 </td>
 
-
-                                @* ==============================
-                                   THAO TÁC
-                                   ============================== *@
-
+                                <!-- THAO TÁC -->
                                 <td>
-
+                                    @* LỊCH SỬ *@
+                                    <a href="@Url.Action("History", "AdmissionQuota", new { id = item.Id })"
+                                       class="btn btn-sm btn-info">
+                                        <i class="fa fa-history"></i>
+                                        Lịch sử
+                                    </a>
                                     @* --------------------------------
-                                       NHÁP -> GỬI DUYỆT
+                                        NHÁP -> GỬI DUYỆT
                                        -------------------------------- *@
 
                                     @if (item.Status == 0 &&
@@ -355,7 +481,44 @@
                                             ✓ Đã duyệt
                                         </span>
                                     }
+                                    @* ==============================
+                                        SỬA / XÓA
+                                       ============================== *@
 
+                                    @if (item.Status != 2)
+                                    {
+                                        @if (IsGranted(PermissionNames.Pages_AdmissionQuota_Edit))
+                                        {
+                                            <a href="@Url.Action("Edit", "AdmissionQuota", new { id = item.Id })"
+                                               class="btn btn-sm btn-warning">
+                                                <i class="fa fa-edit"></i>
+                                                Sửa
+                                            </a>
+                                        }
+
+                                        @if (IsGranted(PermissionNames.Pages_AdmissionQuota_Delete))
+                                        {
+                                            <form asp-controller="AdmissionQuota"
+                                                  asp-action="Delete"
+                                                  method="post"
+                                                  style="display:inline;"
+                                                  onsubmit="return confirm('Bạn có chắc muốn xóa chỉ tiêu này không?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.Id" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger">
+                                                    <i class="fa fa-trash"></i>
+                                                    Xóa
+                                                </button>
+
+                                            </form>
+                                        }
+                                    }
                                 </td>
 
                             </tr>

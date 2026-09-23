@@ -1,0 +1,114 @@
+﻿@using MyProject.Admissions.Dto
+
+@model List<AdmissionQuotaHistoryDto>
+
+@{
+    ViewBag.Title = "Lịch sử duyệt chỉ tiêu";
+}
+
+<div class="container-fluid">
+
+    <div class="card">
+
+        <div class="card-header">
+            <h4>Lịch sử duyệt chỉ tiêu</h4>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Trạng thái trước</th>
+                        <th>Trạng thái sau</th>
+                        <th>Người thực hiện</th>
+                        <th>Thời gian</th>
+                        <th>Nội dung</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        var stt = 1;
+
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@stt</td>
+
+                                <td>
+                                    @GetStatusName(item.OldStatus)
+                                </td>
+
+                                <td>
+                                    @GetStatusName(item.NewStatus)
+                                </td>
+
+                                <td>
+                                    @item.UserId
+                                </td>
+
+                                <td>
+                                    @item.ActionTime.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+                                <td>
+                                    @item.Reason
+                                </td>
+                            </tr>
+
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6"
+                                class="text-center">
+                                Chưa có lịch sử
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+            <a href="@Url.Action("Index", "AdmissionQuota")"
+               class="btn btn-secondary">
+                Quay lại
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@functions {
+
+    string GetStatusName(int status)
+    {
+        switch (status)
+        {
+            case 0:
+                return "Nháp";
+
+            case 1:
+                return "Chờ duyệt";
+
+            case 2:
+                return "Đã duyệt";
+
+            case 3:
+                return "Từ chối";
+
+            default:
+                return "Không xác định";
+        }
+    }
+}

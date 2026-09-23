@@ -34,6 +34,12 @@ namespace MyProject.Web.Mvc.Controllers
                 new PagedAndSortedResultRequestDto()
             );
 
+            var periods = await _admissionPeriodRepository
+                .GetAll()
+                .ToListAsync();
+
+            ViewBag.AdmissionPeriods = periods;
+
             return View(result);
         }
 
@@ -82,6 +88,89 @@ namespace MyProject.Web.Mvc.Controllers
             await _admissionQuotaAppService.CreateAsync(input);
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public async Task<IActionResult> Search(
+    AdmissionQuotaFilterInput input)
+        {
+            var result = await _admissionQuotaAppService
+                .GetFilteredAsync(input);
+
+            var periods = await _admissionPeriodRepository
+                .GetAll()
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+
+            ViewBag.AdmissionPeriods = periods;
+
+            return View("Index", result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(long id)
+        {
+            var quota = await _admissionQuotaAppService
+                .GetAsync(new EntityDto<long> { Id = id });
+
+            var periods = await _admissionPeriodRepository
+                .GetAll()
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+
+            ViewBag.AdmissionPeriods = periods;
+
+            return View(quota);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(AdmissionQuotaDto input)
+        {
+            if (!ModelState.IsValid)
+            {
+                var periods = await _admissionPeriodRepository
+                    .GetAll()
+                    .OrderByDescending(x => x.Id)
+                    .ToListAsync();
+
+                ViewBag.AdmissionPeriods = periods;
+
+                return View(input);
+            }
+
+            await _admissionQuotaAppService.UpdateAsync(input);
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Submit(long id)
+        {
+            await _admissionQuotaAppService.SubmitAsync(
+                new EntityDto<long>
+                {
+                    Id = id
+                });
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(long id)
+        {
+            await _admissionQuotaAppService.DeleteAsync(
+                new EntityDto<long>
+                {
+                    Id = id
+                });
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public async Task<IActionResult> History(long id)
+        {
+            var history = await _admissionQuotaAppService.GetHistoryAsync(id);
+
+            return View(history);
         }
     }
 }

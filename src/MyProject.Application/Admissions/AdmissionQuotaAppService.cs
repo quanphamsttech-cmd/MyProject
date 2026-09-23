@@ -2,9 +2,12 @@
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 using MyProject.Admissions.Dto;
 using MyProject.Authorization;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyProject.Admissions
@@ -18,10 +21,14 @@ namespace MyProject.Admissions
             AdmissionQuotaDto,
             AdmissionQuotaDto>
     {
+        private readonly IRepository<AdmissionQuotaHistory, long> _historyRepository;
+
         public AdmissionQuotaAppService(
-            IRepository<AdmissionQuota, long> repository)
+            IRepository<AdmissionQuota, long> repository,
+            IRepository<AdmissionQuotaHistory, long> historyRepository)
             : base(repository)
         {
+            _historyRepository = historyRepository;
         }
 
         // =====================================================
@@ -112,26 +119,34 @@ namespace MyProject.Admissions
         // =====================================================
 
         [AbpAuthorize(PermissionNames.Pages_AdmissionQuota_Submit)]
-        public async Task<AdmissionQuotaDto> SubmitAsync(
-            EntityDto<long> input)
+        public async Task<AdmissionQuotaDto> SubmitAsync(EntityDto<long> input)
         {
             var entity = await Repository.GetAsync(input.Id);
 
-            // Chỉ Nháp hoặc Từ chối mới được gửi duyệt
             if (entity.Status != 0 && entity.Status != 3)
-            {
                 throw new Exception(
                     "Chỉ tiêu chỉ có thể gửi duyệt khi đang ở trạng thái Nháp hoặc Từ chối.");
-            }
+
+            var oldStatus = entity.Status;
 
             entity.Status = 1;
-
-            // Xóa thông tin từ chối cũ
             entity.RejectReason = null;
             entity.ApprovedBy = null;
             entity.ApprovedTime = null;
 
             await Repository.UpdateAsync(entity);
+
+            await _historyRepository.InsertAsync(new AdmissionQuotaHistory
+            {
+                AdmissionQuotaId = entity.Id,
+                OldStatus = oldStatus,
+                NewStatus = 1,
+                UserId = AbpSession.UserId,
+                ActionTime = DateTime.Now,
+                Reason = oldStatus == 3
+                    ? "Gửi duyệt lại"
+                    : "Gửi duyệt"
+            });
 
             return MapToEntityDto(entity);
         }
@@ -142,30 +157,32 @@ namespace MyProject.Admissions
         // =====================================================
 
         [AbpAuthorize(PermissionNames.Pages_AdmissionQuota_Approve)]
-        public async Task<AdmissionQuotaDto> ApproveAsync(
-            EntityDto<long> input)
+        public async Task<AdmissionQuotaDto> ApproveAsync(EntityDto<long> input)
         {
             var entity = await Repository.GetAsync(input.Id);
 
-            // Chỉ trạng thái Chờ duyệt mới được duyệt
             if (entity.Status != 1)
-            {
                 throw new Exception(
                     "Chỉ tiêu phải ở trạng thái Chờ duyệt mới được duyệt.");
-            }
+
+            var oldStatus = entity.Status;
 
             entity.Status = 2;
-
-            // Lưu người duyệt
             entity.ApprovedBy = AbpSession.UserId;
-
-            // Lưu thời gian duyệt
             entity.ApprovedTime = DateTime.Now;
-
-            // Xóa lý do từ chối nếu có
             entity.RejectReason = null;
 
             await Repository.UpdateAsync(entity);
+
+            await _historyRepository.InsertAsync(new AdmissionQuotaHistory
+            {
+                AdmissionQuotaId = entity.Id,
+                OldStatus = oldStatus,
+                NewStatus = 2,
+                UserId = AbpSession.UserId,
+                ActionTime = DateTime.Now,
+                Reason = "Duyệt chỉ tiêu"
+            });
 
             return MapToEntityDto(entity);
         }
@@ -177,37 +194,95 @@ namespace MyProject.Admissions
 
         [AbpAuthorize(PermissionNames.Pages_AdmissionQuota_Reject)]
         public async Task<AdmissionQuotaDto> RejectAsync(
-            EntityDto<long> input,
-            string reason)
+    EntityDto<long> input,
+    string reason)
         {
             var entity = await Repository.GetAsync(input.Id);
 
-            // Chỉ trạng thái Chờ duyệt mới được từ chối
             if (entity.Status != 1)
-            {
                 throw new Exception(
                     "Chỉ tiêu phải ở trạng thái Chờ duyệt mới được từ chối.");
-            }
 
-            if (string.IsNullOrWhiteSpace(reason))
+                if (string.IsNullOrWhiteSpace(reason))
+                    
             {
                 throw new Exception(
                     "Vui lòng nhập lý do từ chối.");
             }
+            var oldStatus = entity.Status;
 
             entity.Status = 3;
-
             entity.RejectReason = reason;
-
-            // Xóa thông tin duyệt cũ
             entity.ApprovedBy = null;
-
-            // Lưu thời gian xử lý
             entity.ApprovedTime = DateTime.Now;
 
             await Repository.UpdateAsync(entity);
 
+            await _historyRepository.InsertAsync(new AdmissionQuotaHistory
+            {
+                AdmissionQuotaId = entity.Id,
+                OldStatus = oldStatus,
+                NewStatus = 3,
+                UserId = AbpSession.UserId,
+                ActionTime = DateTime.Now,
+                Reason = reason
+            });
+
             return MapToEntityDto(entity);
+        }
+        [AbpAuthorize(PermissionNames.Pages_AdmissionQuota)]
+        public async Task<PagedResultDto<AdmissionQuotaDto>> GetFilteredAsync(
+    AdmissionQuotaFilterInput input)
+        {
+            var query = Repository.GetAll();
+
+            // Lọc theo kỳ tuyển sinh
+            if (input.AdmissionPeriodId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.AdmissionPeriodId == input.AdmissionPeriodId.Value);
+            }
+
+            // Lọc theo tên ngành
+            if (!string.IsNullOrWhiteSpace(input.MajorName))
+            {
+                query = query.Where(x =>
+                    x.MajorName.Contains(input.MajorName));
+            }
+
+            // Lọc theo trạng thái
+            if (input.Status.HasValue)
+            {
+                query = query.Where(x =>
+                    x.Status == input.Status.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.Id)
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .ToListAsync();
+
+            var result = new PagedResultDto<AdmissionQuotaDto>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<AdmissionQuotaDto>>(items)
+            };
+
+            return result;
+        }
+        [AbpAuthorize(PermissionNames.Pages_AdmissionQuota)]
+        public async Task<List<AdmissionQuotaHistoryDto>> GetHistoryAsync(long admissionQuotaId)
+        {
+            var histories = await _historyRepository
+                .GetAll()
+                .Where(x => x.AdmissionQuotaId == admissionQuotaId)
+                .OrderByDescending(x => x.ActionTime)
+                .ToListAsync();
+
+            return ObjectMapper.Map<List<AdmissionQuotaHistoryDto>>(histories);
         }
     }
 }

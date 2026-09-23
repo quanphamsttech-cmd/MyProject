@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <localizationDictionary culture="en">
   <texts>
-    <text name="HomePage" value="Home page" />
+    <text name="HomePage" value="Trang chủ" />
     <text name="About" value="About" />
     <text name="WelcomeMessage" value="Welcome to MyProject!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />
@@ -44,7 +44,7 @@
     <text name="Logout" value="Logout" />
     <text name="RegisterFormUserNameInvalidMessage">Please don't enter an email address for username.</text>
     <text name="DatabaseConnectionString" value="Database connection string" />
-    <text name="Users" value="Users" />
+    <text name="Users" value="Người dùng"/>
     <text name="IsActive" value="Is active" />
     <text name="FullName" value="Full name" />
     <text name="CreateNewUser" value="Create new user" />
@@ -60,7 +60,7 @@
     <text name="Back">Back</text>
     <text name="SuccessfullyRegistered">Successfully registered</text>
     <text name="WaitingForEmailActivation">Your email address should be activated</text>
-    <text name="Roles">Roles</text>
+    <text name="Roles">Vai Trò</text>
     <text name="DisplayName">Display Name</text>
     <text name="Edit">Edit</text>
     <text name="Delete">Delete</text>

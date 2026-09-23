@@ -56,5 +56,7 @@
         // Quyền từ chối chỉ tiêu
         public const string Pages_AdmissionQuota_Reject =
             "Pages.AdmissionQuota.Reject";
+        public const string Pages_AdmissionQuota_Delete =
+            "Pages.AdmissionQuota.Delete";
     }
 }

@@ -10,15 +10,6 @@ public class SideBarUserAreaViewModel
 
     public string GetShownLoginName()
     {
-        var userName = LoginInformations.User.UserName;
-
-        if (!IsMultiTenancyEnabled)
-        {
-            return userName;
-        }
-
-        return LoginInformations.Tenant == null
-            ? ".\\" + userName
-            : LoginInformations.Tenant.TenancyName + "\\" + userName;
+        return LoginInformations.User.UserName;
     }
 }

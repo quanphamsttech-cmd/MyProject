@@ -12,6 +12,7 @@ public class MyProjectDbContext : AbpZeroDbContext<Tenant, Role, User, MyProject
     /* Define a DbSet for each entity of the application */
     public DbSet<AdmissionPeriod> AdmissionPeriods { get; set; }
     public DbSet<AdmissionQuota> AdmissionQuotas { get; set; }
+    public DbSet<AdmissionQuotaHistory> AdmissionQuotaHistories { get; set; }
     public MyProjectDbContext(DbContextOptions<MyProjectDbContext> options)
         : base(options)
     {
